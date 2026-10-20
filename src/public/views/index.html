@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cửa Hàng Công Nghệ</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* CSS tạo ô nhập mật khẩu có nút con mắt bên phải */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .password-wrapper input {
+            width: 100%;
+            padding-right: 40px; /* Dành khoảng trống cho icon con mắt */
+            box-sizing: border-box;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            user-select: none;
+            opacity: 0.7;
+        }
+        .toggle-password:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER ĐÃ ĐƯỢC CHUẨN HÓA (GỘP DARK MODE + AUTH) -->
+    <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #1e293b; color: white;">
+        <h1 style="margin: 0; font-size: 24px;">⚡ Cửa Hàng Công Nghệ</h1>
+        
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <!-- Nút bật/tắt Dark Mode -->
+            <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleDarkMode()" style="background: #334155; color: white; border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                <span id="themeIcon">🌙</span> <span id="themeText">Chế độ tối</span>
+            </button>
+
+            <!-- Khu vực Tài khoản Auth Header -->
+            <div id="authHeader" class="auth-header">
+                <button id="btnOpenLogin" onclick="openAuthModal('login')">Đăng Nhập</button>
+                <button id="btnOpenRegister" onclick="openAuthModal('register')">Đăng Ký</button>
+                
+                <span id="userInfo" style="display:none;">
+                    Xin chào, <b id="userNameDisplay"></b>! 
+                    <button onclick="openWishlistModal()" style="margin-left: 8px; background: #ec4899; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">❤️ Yêu Thích (<span id="wishlistCount">0</span>)</button>
+                    <button onclick="openMyOrdersModal()" style="margin-left: 8px; background: #6366f1; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">📋 Đơn Hàng Của Tôi</button>
+                    <a href="/admin" id="adminLink" style="color: #f59e0b; margin-left: 8px; font-weight: bold; text-decoration: none; display: none;">[Trang Admin]</a>
+                    <button onclick="openChangePasswordModal()" style="margin-left: 8px; background: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">Đổi Mật Khẩu</button>
+                    <button onclick="logout()" style="margin-left: 8px; background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">Đăng Xuất</button>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout-container">
+        <section class="products-section">
+            <h2>Danh Sách Sản Phẩm</h2>
+
+            <!-- KHUNG TÌM KIẾM & BỘ LỌC ĐA NĂNG (Bổ sung Danh mục & Thương hiệu) -->
+           <div class="filter-bar">
+    <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm sản phẩm..." oninput="handleFilter()">
+
+    <!-- Lọc Danh Mục -->
+    <select id="filterCategory" onchange="handleFilter()">
+        <option value="ALL">📦 Tất cả Danh mục</option>
+        <option value="Bàn phím">⌨️ Bàn phím</option>
+        <option value="Chuột">🖱️ Chuột</option>
+        <option value="Tai nghe">🎧 Tai nghe</option>
+        <option value="Màn hình">🖥️ Màn hình</option>
+        <option value="Phụ kiện">🔌 Phụ kiện</option>
+    </select>
+
+    <!-- Lọc Thương Hiệu -->
+    <select id="filterBrand" onchange="handleFilter()">
+        <option value="ALL">🏷️ Tất cả Thương hiệu</option>
+        <option value="Logitech">Logitech</option>
+        <option value="Razer">Razer</option>
+        <option value="Mchose">Mchose</option>
+        <option value="Akko">Akko</option>
+    </select>
+
+    <!-- Sắp Xếp -->
+    <select id="sortSelect" onchange="handleFilter()">
+        <option value="default">Sắp xếp: Mặc định</option>
+        <option value="price-asc">Giá: Thấp đến Cao</option>
+        <option value="price-desc">Giá: Cao đến Thấp</option>
+        <option value="name-asc">Tên: A - Z</option>
+    </select>
+</div>
+
+            <main class="product-container" id="productList"></main>
+        </section>
+
+        <!-- KHU VỰC GIỎ HÀNG CHUẨN -->
+        <aside class="cart-section">
+            <!-- Khung Nhập Mã Giảm Giá -->
+            <div class="voucher-box" style="margin-top: 15px; margin-bottom: 10px; display: flex; gap: 8px;">
+                <input type="text" id="voucherInput" placeholder="Nhập mã giảm giá..." style="flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; text-transform: uppercase;">
+                <button type="button" onclick="applyVoucher()" style="padding: 8px 15px; background: #6366f1; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Áp Dụng</button>
+            </div>
+
+            <div class="cart-total" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px;">
+                <div>Giảm giá: <strong id="discountAmountText" style="color: #10b981;">0 VNĐ</strong></div>
+                <div>Tổng tiền thanh toán: <strong id="cartTotal" style="color: #ef4444; font-size: 18px;">0 VNĐ</strong></div>
+            </div>
+
+            <h2>Giỏ Hàng Của Bạn (<span id="cartCount">0</span>)</h2>
+            
+            <div id="cartItems" class="cart-items">
+                <p>Chưa có sản phẩm nào trong giỏ.</p>
+            </div>
+
+            <form id="checkoutForm" class="checkout-form" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <h3 style="font-size: 16px; color: #1e293b; margin-bottom: 5px;">Thông Tin Giao Hàng</h3>
+                
+                <input type="text" id="custName" placeholder="Họ và tên *" required style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; width: 100%;">
+                <input type="tel" id="custPhone" placeholder="Số điện thoại *" required style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; width: 100%;">
+                <textarea id="custAddress" placeholder="Địa chỉ giao hàng *" required style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; width: 100%; height: 70px; resize: none;"></textarea>
+                
+                <label style="font-size: 13px; font-weight: bold; color: #475569; margin-top: 5px;">Hình thức thanh toán:</label>
+                <select id="paymentMethod" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; width: 100%;">
+                    <option value="COD">💵 Thanh toán khi nhận hàng (COD)</option>
+                    <option value="BANK_QR">💳 Quét mã VietQR (Chuyển khoản)</option>
+                </select>
+
+                <button type="submit" id="btnCheckout" style="margin-top: 10px; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s;">
+                    Đặt Hàng Ngay
+                </button>
+            </form>
+        </aside>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Sản Phẩm -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content detail-modal-content">
+            <span class="close-btn" onclick="closeDetailModal()">&times;</span>
+            <div id="detailBody" class="detail-body"></div>
+        </div>
+    </div>
+
+    <!-- Modal Auth (Đăng Nhập / Đăng Ký) -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+            
+            <!-- FORM ĐĂNG NHẬP -->
+            <form id="loginForm">
+                <h2>Đăng Nhập</h2>
+                <input type="email" id="loginEmail" placeholder="Email *" required>
+                
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" placeholder="Mật khẩu *" required>
+                    <span class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👁️</span>
+                </div>
+
+                <p style="text-align: right; margin-top: 5px; margin-bottom: 15px;">
+                    <a href="#" onclick="openForgotPasswordModal()" style="color: #007bff; font-size: 13px; text-decoration: none;">Quên mật khẩu?</a>
+                </p>
+                <button type="submit">Đăng Nhập</button>
+            </form>
+
+            <!-- FORM ĐĂNG KÝ -->
+            <form id="registerForm" style="display:none;">
+                <h2>Đăng Ký Tài Khoản</h2>
+                <input type="text" id="regName" placeholder="Họ và tên *" required>
+                <input type="email" id="regEmail" placeholder="Email *" required>
+                
+                <div class="password-wrapper">
+                    <input type="password" id="regPassword" placeholder="Mật khẩu *" required minlength="6">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👁️</span>
+                </div>
+
+                <button type="submit">Đăng Ký</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL QUÊN MẬT KHẨU -->
+    <div id="forgotPasswordModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('forgotPasswordModal')">&times;</span>
+            <h2>Quên Mật Khẩu</h2>
+            <form id="forgotPasswordForm">
+                <label style="display:block; text-align:left; margin-bottom:5px;">Email đăng ký *</label>
+                <input type="email" id="forgotEmail" required placeholder="Nhập email của bạn">
+                
+                <label style="display:block; text-align:left; margin-bottom:5px;">Mật khẩu mới *</label>
+                <div class="password-wrapper">
+                    <input type="password" id="forgotNewPassword" required placeholder="Nhập mật khẩu mới">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('forgotNewPassword', this)">👁️</span>
+                </div>
+
+                <button type="submit" style="margin-top:15px; background: #28a745;">Đặt Lại Mật Khẩu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ĐỔI MẬT KHẨU -->
+    <div id="changePasswordModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('changePasswordModal')">&times;</span>
+            <h2>Đổi Mật Khẩu</h2>
+            <form id="changePasswordForm">
+                <label style="display:block; text-align:left; margin-bottom:5px;">Mật khẩu hiện tại *</label>
+                <div class="password-wrapper">
+                    <input type="password" id="oldPassword" required placeholder="Nhập mật khẩu cũ">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('oldPassword', this)">👁️</span>
+                </div>
+
+                <label style="display:block; text-align:left; margin-bottom:5px;">Mật khẩu mới *</label>
+                <div class="password-wrapper">
+                    <input type="password" id="newPassword" required placeholder="Nhập mật khẩu mới">
+                    <span class="toggle-password" onclick="togglePasswordVisibility('newPassword', this)">👁️</span>
+                </div>
+
+                <button type="submit" style="margin-top:15px; background: #17a2b8;">Xác Nhận Đổi Mật Khẩu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL HIỂN THỊ MÃ QR THANH TOÁN VIETQR -->
+    <div id="qrModal" class="modal" style="display: none;">
+        <div class="modal-content" style="text-align: center; max-width: 480px;">
+            <span class="close-btn" onclick="closeModal('qrModal')">&times;</span>
+            <h2 style="color: #0d6efd;">Quét Mã VietQR Thanh Toán</h2>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 15px;">Sử dụng ứng dụng Ngân hàng hoặc MoMo để quét mã QR bên dưới</p>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: inline-block;">
+                <img id="qrCodeImg" src="" alt="Mã QR Thanh Toán" style="width: 250px; height: 250px; border-radius: 8px;">
+            </div>
+
+            <div style="margin-top: 15px; text-align: left; background: #eff6ff; padding: 12px 15px; border-radius: 8px; font-size: 14px;">
+                <p><strong>Mã đơn hàng:</strong> <span id="qrOrderId" style="color: #0d6efd;"></span></p>
+                <p><strong>Số tiền cần chuyển:</strong> <span id="qrAmount" style="color: #ef4444; font-weight: bold;"></span></p>
+                <p><strong>Nội dung chuyển khoản:</strong> <span id="qrMemo" style="color: #059669; font-weight: bold;"></span></p>
+            </div>
+
+            <button onclick="finishQrPayment()" style="margin-top: 20px; width: 100%; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">
+                ✅ Tôi Đã Chuyển Khoản Xong
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL LỊCH SỬ ĐƠN HÀNG CỦA KHÁCH -->
+    <div id="myOrdersModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; width: 90%;">
+            <span class="close-btn" onclick="closeModal('myOrdersModal')">&times;</span>
+            <h2 style="color: #1e293b; margin-bottom: 20px;">📋 Lịch Sử Đơn Hàng Của Tôi</h2>
+            
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                    <thead>
+                        <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+                            <th style="padding: 10px;">Mã Đơn</th>
+                            <th style="padding: 10px;">Sản Phẩm</th>
+                            <th style="padding: 10px;">Tổng Tiền</th>
+                            <th style="padding: 10px;">Trạng Thái</th>
+                            <th style="padding: 10px;">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myOrdersTableBody">
+                        <!-- Dữ liệu đơn hàng sẽ render ở đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DANH SÁCH YÊU THÍCH (WISHLIST) -->
+    <div id="wishlistModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px; width: 90%;">
+            <span class="close-btn" onclick="closeModal('wishlistModal')">&times;</span>
+            <h2 style="color: #ec4899; margin-bottom: 20px;">❤️ Danh Sách Sản Phẩm Yêu Thích</h2>
+            
+            <div id="wishlistContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; max-height: 400px; overflow-y: auto; padding: 10px;">
+                <!-- Danh sách sản phẩm yêu thích render ở đây -->
+            </div>
+        </div>
+    </div>
+
+    <!-- File Script chính của ứng dụng -->
+    <script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Sản Phẩm</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .review-section { max-width: 900px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .rating-summary { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #f39c12; }
+        .review-form { margin-bottom: 30px; padding: 15px; background: #f9f9f9; border-radius: 6px; }
+        .review-form select, .review-form textarea { width: 100%; margin-top: 8px; margin-bottom: 12px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .review-item { border-bottom: 1px solid #eee; padding: 12px 0; }
+        .review-item .author { font-weight: bold; color: #333; }
+        .review-item .stars { color: #f39c12; font-size: 14px; margin-left: 8px; }
+        .review-item .date { font-size: 12px; color: #888; }
+        .review-item .comment-text { margin-top: 6px; color: #555; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/">🏠 Quay về Trang Chủ</a>
+    </header>
+
+    <!-- Khu vực thông tin sản phẩm -->
+    <div id="productDetail" class="container"></div>
+
+    <!-- KHU VỰC ĐÁNH GIÁ & BÌNH LUẬN -->
+    <div class="review-section">
+        <h2>Đánh Giá & Bình Luận</h2>
+        <div id="ratingSummary" class="rating-summary">⭐ 0/5 (0 lượt đánh giá)</div>
+
+        <!-- Form gửi đánh giá (Chỉ hiện khi đã đăng nhập) -->
+        <div id="reviewFormContainer" class="review-form">
+            <h3>Viết đánh giá của bạn</h3>
+            <form id="reviewForm">
+                <label>Chọn số sao:</label>
+                <select id="reviewRating" required>
+                    <option value="5">5 ⭐ - Rất tốt</option>
+                    <option value="4">4 ⭐ - Tốt</option>
+                    <option value="3">3 ⭐ - Bình thường</option>
+                    <option value="2">2 ⭐ - Tạm được</option>
+                    <option value="1">1 ⭐ - Rất kém</option>
+                </select>
+
+                <label>Nội dung bình luận:</label>
+                <textarea id="reviewComment" rows="3" required placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+
+                <button type="submit" class="btn-save" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Gửi Đánh Giá</button>
+            </form>
+        </div>
+
+        <div id="loginPrompt" style="display: none; padding: 15px; background: #fff3cd; border-radius: 6px; margin-bottom: 20px;">
+            🔒 Bạn cần <a href="/" style="color: #007bff; font-weight: bold;">Đăng Nhập</a> để để lại đánh giá và bình luận.
+        </div>
+
+        <!-- Danh sách các bình luận thực tế -->
+        <h3>Tất cả bình luận</h3>
+        <div id="reviewList"></div>
+    </div>
+
+    <script src="/js/product-detail.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Bỏ qua các thư viện cài đặt
+node_modules/
+
+# Bỏ qua tệp cấu hình bảo mật (chứa JWT_SECRET, DB_URI...)
+.env
+
+# Bỏ qua các ảnh upload chạy thử trong máy
+uploads/*
+!uploads/.gitkeep
+
+# Bỏ qua tệp log hệ thống
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
